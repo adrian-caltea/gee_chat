@@ -1,0 +1,39 @@
+<div class="chat-container">
+  <header class="chat-header">
+    <h2>Training Chat</h2>
+    <p class="sub">Ask questions about the GEE training document</p>
+  </header>
+
+  <div class="conversation" role="log" aria-live="polite">
+    <div *ngFor="let m of messages(); trackBy: trackById" class="message" [class.user]="m.role==='user'" [class.bot]="m.role==='bot'">
+      <div *ngIf="m.role==='bot'" class="avatar" aria-hidden="true">Bot</div>
+
+      <div *ngIf="m.role==='user'" class="bubble user-bubble">
+        <pre>{{m.text}}</pre>
+      </div>
+
+      <div *ngIf="m.role==='bot'" class="bubble bot-bubble" [class.small]="m.text && m.text.length < 40 && m.text.indexOf('\n') === -1">
+        <div class="msg-header">
+          <small class="meta">{{m.createdAt | date:'shortTime'}}</small>
+          <div class="msg-controls">
+            <button *ngIf="!m.loading && m.text && m.text.trim().length" class="icon-btn" title="Copy" (click)="copyMessage(m.id)">Copy</button>
+            <button *ngIf="m.loading" class="icon-btn" title="Stop" (click)="stopStream(m.id)">Stop</button>
+            <span *ngIf="m.copied" class="copied">Copied</span>
+          </div>
+        </div>
+        <pre><ng-container *ngIf="m.loading; else botText"><span class="typing-dots" aria-hidden="true">• • •</span></ng-container><ng-template #botText>{{m.text}}</ng-template></pre>
+      </div>
+
+      <div *ngIf="m.role==='user'" class="avatar user" aria-hidden="true">You</div>
+    </div>
+  </div>
+
+  <div class="composer">
+    <label for="chat-input" class="sr-only">Ask about the training</label>
+    <textarea id="chat-input" [ngModel]="input()" (ngModelChange)="input.set($event)" (keydown.enter)="onEnter($event)" rows="2" placeholder="Ask about the training..." aria-label="Ask about the training"></textarea>
+    <div class="composer-controls">
+      <button class="btn primary" (click)="sendStream()" [disabled]="!input().trim()">Send (stream)</button>
+      <button class="btn" (click)="sendOnce()" [disabled]="!input().trim()">Send (one-shot)</button>
+    </div>
+  </div>
+</div>
